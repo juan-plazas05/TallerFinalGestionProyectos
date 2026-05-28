@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+.venv/
+.venv_*/
+venv/
+
+# Proto generated
+proto/gen/
+
+# Data
+data/*.zip
+data/__pycache__/
+
+# Models
+*.pt
+*.onnx
+weights/
+
+# MLflow
+mlruns/
+mlflow/artifacts/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+.env
+*.log
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/

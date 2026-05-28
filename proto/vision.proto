@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package vision;
+
+service SignLanguageRecognizer {
+  rpc RecognizeStream(stream FrameRequest) returns (stream FrameResponse);
+}
+
+message FrameRequest {
+  bytes image_data = 1;
+  int32 width = 2;
+  int32 height = 3;
+  int32 frame_id = 4;
+}
+
+message FrameResponse {
+  repeated Detection detections = 1;
+  bytes annotated_image = 2;
+  int32 frame_id = 3;
+  float inference_time_ms = 4;
+}
+
+message Detection {
+  string label = 1;
+  float confidence = 2;
+  int32 x_min = 3;
+  int32 y_min = 4;
+  int32 x_max = 5;
+  int32 y_max = 6;
+}
