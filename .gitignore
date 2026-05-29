@@ -17,6 +17,9 @@ proto/gen/
 
 # Data
 data/*.zip
+data/train/
+data/valid/
+data/test/
 data/__pycache__/
 
 # Models
@@ -47,3 +50,7 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+
+uv.lock
+*_pb2.py
+*_pb2_grpc.py
