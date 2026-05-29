@@ -156,13 +156,13 @@ dataset/
 
 ## Roadmap de Sprints
 
-### Sprint 0: Infraestructura y Contrato
-| Tarea | Descripción | DoD (Definition of Done) |
-|-------|-------------|--------------------------|
-| `vision.proto` | Definir contrato gRPC (mensajes, servicio) | Archivo `.proto` compila sin errores |
-| Docker Compose | Orquestar ambos servicios | `docker-compose up` levanta ambos servicios |
-| Script de descarga | `download_dataset.py` | Dataset descargado y extraído |
-| MLflow setup | `mlflow_server` configurado | Interfaz de MLflow accesible en puerto 5000 |
+### Sprint 0: Infraestructura y Contrato ✅
+| Tarea | Rama | Estado | Archivos creados |
+|-------|------|--------|------------------|
+| 1. Contrato gRPC | `feature/grpc-contract` | ✅ | `proto/vision.proto`, `pyproject.toml` (x2), `Makefile`, `.gitignore` |
+| 2. Docker Setup | `feature/docker-setup` | ✅ | `Dockerfile` (x2), `docker-compose.yml`, `.dockerignore`, stubs server/app |
+| 3. Descarga dataset | `feature/download-dataset` | ✅ | `data/download_dataset.py` |
+| 4. MLflow setup | `feature/mlflow-setup` | ✅ | `mlflow/config.py`, `mlflow/experiment.py`, docker-compose mlflow service |
 
 ### Sprint 1: Entrenamiento del Modelo
 | Tarea | Descripción | DoD |
@@ -344,4 +344,6 @@ vc-lenguaje-senas/
 ---
 
 *Documento creado: 26/05/2026*
-*Próxima acción: Esperar autorización del Product Owner para iniciar Sprint 0.*
+*Última actualización: 28/05/2026*
+*Progreso: Sprint 0 completado ✅ | Siguiente: Sprint 1 — Entrenamiento del modelo*
+*Esperando autorización del Product Owner para continuar.*
