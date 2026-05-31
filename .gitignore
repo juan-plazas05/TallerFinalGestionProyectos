@@ -12,24 +12,32 @@ build/
 .venv_*/
 venv/
 
-# Proto generated
-proto/gen/
-
 # Data
 data/*.zip
 data/train/
 data/valid/
 data/test/
 data/__pycache__/
+data/eda_output/
 
 # Models
 *.pt
 *.onnx
 weights/
+training/runs/
 
 # MLflow
 mlruns/
 mlflow/artifacts/
+
+# Proto generated
+proto/gen/
+*_pb2.py
+*_pb2_grpc.py
+
+# Docker
+.env
+*.log
 
 # IDE
 .vscode/
@@ -37,22 +45,16 @@ mlflow/artifacts/
 *.swp
 *.swo
 *~
+*.swn
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Docker
-.env
-*.log
 
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
 
+# Environment
 uv.lock
-*_pb2.py
-*_pb2_grpc.py
-
-*/runs/*

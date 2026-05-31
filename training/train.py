@@ -2,8 +2,11 @@
 import argparse
 import logging
 from pathlib import Path
-
+from sklearn.utils.class_weight import compute_class_weight
 import mlflow
+import yaml
+import numpy as np
+import os
 from ultralytics import YOLO
 
 import mlflow_setup
@@ -13,6 +16,7 @@ logger = logging.getLogger("train")
 
 TRAINING_DIR = Path(__file__).resolve().parent
 DATASET_YAML = TRAINING_DIR.parent / "data" / "dataset.yaml"
+TRAIN_LABELS_FILE = TRAINING_DIR.parent / "data" / "train" / "labels"
 
 
 def parse_args() -> argparse.Namespace:
@@ -35,9 +39,25 @@ def main() -> None:
 
     with mlflow.start_run() as run:
         run_id = run.info.run_id
+        with DATASET_YAML.open() as f:
+            train_labels = []
+            for lbl_path in sorted(TRAIN_LABELS_FILE.glob("*.txt")):
+                lines = lbl_path.read_text().strip().splitlines()
+                for line in lines:
+                    print("line:", line)
+                    class_id = int(line.split()[0])
+
+                    train_labels.append(class_id)
+
+
+        classes = np.unique(train_labels)
+        class_weights = compute_class_weight('balanced', classes=classes, y=train_labels)
+        class_weights_dict = dict(zip(classes, class_weights))
+        print("Class weights (homogeneización):", class_weights_dict)
+        
+        model = YOLO(args.model)
         mlflow_setup.log_params(vars(args))
 
-        model = YOLO(args.model)
         model.train(
             data=str(DATASET_YAML),
             epochs=args.epochs,

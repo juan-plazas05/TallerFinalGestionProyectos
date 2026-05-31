@@ -148,9 +148,27 @@ dataset/
 ```
 
 **Preprocesamiento:**
-- Normalización de imágenes (640x640 para YOLOv7)
+- Normalización de imágenes (640x640 para YOLO11n)
 - División train/val/test
 - Verificación de integridad de etiquetas
+
+### EDA y Balanceo de Clases
+
+**Script:** `data/eda.py` — genera:
+
+| Output | Descripción |
+|--------|-------------|
+| `eda_output/class_distribution.png` | Barras por clase y split |
+| `eda_output/bbox_analysis.png` | Histogramas + heatmap de centros |
+| `eda_output/per_class_bbox.png` | Boxplot de áreas por clase |
+| `eda_output/class_weights.txt` | Pesos inverse frequency (26 floats) |
+| `eda_output/report.md` | Reporte narrativo con hallazgos y storytelling |
+
+**El reporte (`report.md`) se mostrará en el frontend** (UI Service, Sprint 3) para dar contexto al usuario sobre el dataset, el desbalance y la estrategia de balanceo aplicada.
+
+**Estrategias de balanceo implementadas en `training/train.py`:**
+1. **Class weights (`--class-weights`)**: pondera la loss con inverse frequency vía `cls_pw`
+2. **Augmentation control**: parámetros `--mosaic`, `--mixup`, `--copy-paste`, `--degrees`, etc. permiten ajustar la intensidad de aumentación por clase minoritaria
 
 ---
 
@@ -164,13 +182,15 @@ dataset/
 | 3. Descarga dataset | `feature/download-dataset` | ✅ | `data/download_dataset.py` |
 | 4. MLflow setup | `feature/mlflow-setup` | ✅ | `mlflow/config.py`, `mlflow/experiment.py`, docker-compose mlflow service |
 
-### Sprint 1: Entrenamiento del Modelo
-| Tarea | Descripción | DoD |
-|-------|-------------|-----|
-| Entrenar YOLOv7 | Entrenamiento con el dataset | mAP > 0.8 en validación |
-| MLflow Tracking | Registrar experimento | Parámetros y métricas visibles en UI de MLflow |
-| Exportar modelo (.onnx) | Exportar el `.pt` entrenado a `.onnx` | Inferencia en ONNX Runtime funcional y validada contra `.pt` original |
-| Model Registry | Subir ambos artefactos (`.pt` + `.onnx`) y registrar como "Production" | Modelo disponible para descarga vía API |
+### Sprint 1: EDA + Entrenamiento del Modelo
+| Tarea | Rama | Estado | Descripción | DoD |
+|-------|------|--------|-------------|-----|
+| Pipeline de entrenamiento | `feature/mlflow-setup` | ✅ | Código de training (train.py, mlflow_setup.py, dataset.yaml) | Entrenamiento invocable con `uv run python train.py` |
+| EDA y balanceo de clases | `feature/eda-data-distribution` | 🔄 | Análisis exploratorio de distribución, bounding boxes, integridad; estrategia de balanceo | Reporte narrativo (`report.md`) + visualizaciones guardadas; `train.py` parametrizado con `--class-weights` y args de augmentation |
+| Entrenar YOLO11n | — | ⏳ | Entrenamiento con el dataset usando class weights según EDA | mAP > 0.8 en validación |
+| MLflow Tracking | — | ⏳ | Registrar experimento con parámetros, métricas y artefactos | Parámetros y métricas visibles en UI de MLflow |
+| Exportar modelo (.onnx) | — | ⏳ | Exportar el `.pt` entrenado a `.onnx` | Inferencia en ONNX Runtime funcional y validada contra `.pt` original |
+| Model Registry | — | ⏳ | Subir ambos artefactos (`.pt` + `.onnx`) y registrar como "Production" | Modelo disponible para descarga vía API |
 
 ### Sprint 2: Inference Service (gRPC Server)
 | Tarea | Descripción | DoD |
@@ -344,6 +364,5 @@ vc-lenguaje-senas/
 ---
 
 *Documento creado: 26/05/2026*
-*Última actualización: 28/05/2026*
-*Progreso: Sprint 0 completado ✅ | Siguiente: Sprint 1 — Entrenamiento del modelo*
-*Esperando autorización del Product Owner para continuar.*
+*Última actualización: 31/05/2026*
+*Progreso: Sprint 0 completado ✅ | Sprint 1: Pipeline entrenamiento ✅ → EDA 🔄 (reporte generado automáticamente en eda_output/report.md, consumible desde frontend en Sprint 3)*
