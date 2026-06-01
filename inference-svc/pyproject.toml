@@ -1,18 +1,17 @@
 [project]
 name = "inference-svc"
 version = "0.1.0"
-description = "Microservicio de inferencia YOLOv7 con gRPC"
+description = "Microservicio de inferencia YOLO con gRPC"
 requires-python = ">=3.11"
 
 dependencies = [
     "grpcio>=1.60",
     "grpcio-tools>=1.60",
-    "torch>=2.0",
     "opencv-python-headless>=4.9",
-    "onnxruntime>=1.17",
     "numpy>=1.26",
     "mlflow>=2.10",
     "protobuf>=4.25",
+    "ultralytics>=8.3",
 ]
 
 [dependency-groups]

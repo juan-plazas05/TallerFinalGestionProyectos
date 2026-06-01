@@ -10,15 +10,13 @@ WORKDIR /app
 COPY inference-svc/pyproject.toml .
 RUN uv lock && uv sync --frozen --no-dev
 
+COPY inference-svc/src/ ./src/
 COPY proto/ ./proto/
-RUN mkdir -p src && \
-    uv run python -m grpc_tools.protoc \
+RUN uv run python -m grpc_tools.protoc \
     -I ./proto \
     --python_out=./src \
     --grpc_python_out=./src \
     ./proto/vision.proto
-
-COPY inference-svc/src/ ./src/
 
 RUN adduser --disabled-password --gecos "" appuser
 USER appuser
