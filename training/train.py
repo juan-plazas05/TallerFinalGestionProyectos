@@ -2,14 +2,10 @@
 import argparse
 import logging
 from pathlib import Path
-from sklearn.utils.class_weight import compute_class_weight
 import mlflow
-import yaml
-import numpy as np
-import os
 from ultralytics import YOLO
-
 import mlflow_setup
+import torch;
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("train")
@@ -31,34 +27,28 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+
     args = parse_args()
     logger.info("Training config: %s", vars(args))
     logger.info("Dataset: %s", DATASET_YAML)
 
+    print('CUDA disponible:', torch.cuda.is_available()); 
+    print('GPU:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'Ninguna')
+
+    if not torch.cuda.is_available():
+        args.device = "cpu"
+        logger.warning("CUDA no disponible. Usando CPU para entrenamiento, lo que será significativamente más lento.")
+        
+    mlflow.end_run()
     mlflow_setup.setup()
 
     with mlflow.start_run() as run:
         run_id = run.info.run_id
-        with DATASET_YAML.open() as f:
-            train_labels = []
-            for lbl_path in sorted(TRAIN_LABELS_FILE.glob("*.txt")):
-                lines = lbl_path.read_text().strip().splitlines()
-                for line in lines:
-                    print("line:", line)
-                    class_id = int(line.split()[0])
-
-                    train_labels.append(class_id)
-
-
-        classes = np.unique(train_labels)
-        class_weights = compute_class_weight('balanced', classes=classes, y=train_labels)
-        class_weights_dict = dict(zip(classes, class_weights))
-        print("Class weights (homogeneización):", class_weights_dict)
-        
-        model = YOLO(args.model)
         mlflow_setup.log_params(vars(args))
 
-        model.train(
+        model = YOLO('C:\\juanplazas\\Portafolio\\vc-lenguaje-senas\\training\\runs\\detect\\runs\\210e7f444eef44ffbca913637587424d\\weights\\best.pt')
+
+        '''model.train(
             data=str(DATASET_YAML),
             epochs=args.epochs,
             batch=args.batch_size,
@@ -69,7 +59,7 @@ def main() -> None:
             name=run_id,
             exist_ok=True,
             verbose=True,
-        )
+        )'''
 
         val_results = model.val()
         mlflow_setup.log_metrics(val_results.results_dict)

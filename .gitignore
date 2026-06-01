@@ -29,6 +29,7 @@ training/runs/
 # MLflow
 mlruns/
 mlflow/artifacts/
+mlflow.db
 
 # Proto generated
 proto/gen/

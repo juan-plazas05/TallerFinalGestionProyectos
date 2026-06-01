@@ -28,7 +28,8 @@ def log_metrics(results_dict: dict) -> None:
     flat = {}
     for k, v in results_dict.items():
         if isinstance(v, (int, float)):
-            flat[k.replace("/", "_")] = float(v)
+            clean = k.replace("/", "_").replace("(", "_").replace(")", "")
+            flat[clean] = float(v)
     mlflow.log_metrics(flat)
     logger.info(
         "mAP50=%.4f, mAP50-95=%.4f",

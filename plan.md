@@ -161,14 +161,13 @@ dataset/
 | `eda_output/class_distribution.png` | Barras por clase y split |
 | `eda_output/bbox_analysis.png` | Histogramas + heatmap de centros |
 | `eda_output/per_class_bbox.png` | Boxplot de áreas por clase |
-| `eda_output/class_weights.txt` | Pesos inverse frequency (26 floats) |
 | `eda_output/report.md` | Reporte narrativo con hallazgos y storytelling |
 
 **El reporte (`report.md`) se mostrará en el frontend** (UI Service, Sprint 3) para dar contexto al usuario sobre el dataset, el desbalance y la estrategia de balanceo aplicada.
 
-**Estrategias de balanceo implementadas en `training/train.py`:**
-1. **Class weights (`--class-weights`)**: pondera la loss con inverse frequency vía `cls_pw`
-2. **Augmentation control**: parámetros `--mosaic`, `--mixup`, `--copy-paste`, `--degrees`, etc. permiten ajustar la intensidad de aumentación por clase minoritaria
+**Estrategia de balanceo en `training/train.py`:**
+- `compute_class_weight('balanced', ...)` de sklearn calcula pesos inversamente proporcionales a la frecuencia de cada clase y los pasa como `cls_pw` a `model.train()`
+- Peso máximo para la clase minoritaria (B: 2.0), mínimo para la mayoritaria (I, J: 1.0)
 
 ---
 
@@ -186,7 +185,7 @@ dataset/
 | Tarea | Rama | Estado | Descripción | DoD |
 |-------|------|--------|-------------|-----|
 | Pipeline de entrenamiento | `feature/mlflow-setup` | ✅ | Código de training (train.py, mlflow_setup.py, dataset.yaml) | Entrenamiento invocable con `uv run python train.py` |
-| EDA y balanceo de clases | `feature/eda-data-distribution` | 🔄 | Análisis exploratorio de distribución, bounding boxes, integridad; estrategia de balanceo | Reporte narrativo (`report.md`) + visualizaciones guardadas; `train.py` parametrizado con `--class-weights` y args de augmentation |
+| EDA y balanceo de clases | `feature/eda-data-distribution` | ✅ | Análisis exploratorio de distribución, bounding boxes, integridad; estrategia de balanceo | Reporte narrativo (`report.md`) + visualizaciones guardadas; `train.py` usa `compute_class_weight('balanced')` vía `cls_pw` |
 | Entrenar YOLO11n | — | ⏳ | Entrenamiento con el dataset usando class weights según EDA | mAP > 0.8 en validación |
 | MLflow Tracking | — | ⏳ | Registrar experimento con parámetros, métricas y artefactos | Parámetros y métricas visibles en UI de MLflow |
 | Exportar modelo (.onnx) | — | ⏳ | Exportar el `.pt` entrenado a `.onnx` | Inferencia en ONNX Runtime funcional y validada contra `.pt` original |
@@ -365,4 +364,4 @@ vc-lenguaje-senas/
 
 *Documento creado: 26/05/2026*
 *Última actualización: 31/05/2026*
-*Progreso: Sprint 0 completado ✅ | Sprint 1: Pipeline entrenamiento ✅ → EDA 🔄 (reporte generado automáticamente en eda_output/report.md, consumible desde frontend en Sprint 3)*
+*Progreso: Sprint 0 completado ✅ | Sprint 1: Pipeline entrenamiento ✅ → EDA ✅ → Entrenar YOLO11n 🔄*
