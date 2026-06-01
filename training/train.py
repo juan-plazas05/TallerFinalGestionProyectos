@@ -5,15 +5,13 @@ from pathlib import Path
 import mlflow
 from ultralytics import YOLO
 import mlflow_setup
-import torch;
+import torch
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("train")
 
 TRAINING_DIR = Path(__file__).resolve().parent
 DATASET_YAML = TRAINING_DIR.parent / "data" / "dataset.yaml"
-TRAIN_LABELS_FILE = TRAINING_DIR.parent / "data" / "train" / "labels"
-
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train YOLO on sign language dataset")
@@ -27,18 +25,17 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-
     args = parse_args()
     logger.info("Training config: %s", vars(args))
     logger.info("Dataset: %s", DATASET_YAML)
 
-    print('CUDA disponible:', torch.cuda.is_available()); 
-    print('GPU:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'Ninguna')
+    print("CUDA disponible:", torch.cuda.is_available())
+    print("GPU:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "Ninguna")
 
     if not torch.cuda.is_available():
         args.device = "cpu"
-        logger.warning("CUDA no disponible. Usando CPU para entrenamiento, lo que será significativamente más lento.")
-        
+        logger.warning("CUDA no disponible. Usando CPU para entrenamiento.")
+
     mlflow.end_run()
     mlflow_setup.setup()
 
@@ -46,9 +43,9 @@ def main() -> None:
         run_id = run.info.run_id
         mlflow_setup.log_params(vars(args))
 
-        model = YOLO('C:\\juanplazas\\Portafolio\\vc-lenguaje-senas\\training\\runs\\detect\\runs\\210e7f444eef44ffbca913637587424d\\weights\\best.pt')
+        model = YOLO(args.model)
 
-        '''model.train(
+        model.train(
             data=str(DATASET_YAML),
             epochs=args.epochs,
             batch=args.batch_size,
@@ -59,11 +56,18 @@ def main() -> None:
             name=run_id,
             exist_ok=True,
             verbose=True,
-        )'''
+            augment=True,
+        )
 
         val_results = model.val()
         mlflow_setup.log_metrics(val_results.results_dict)
-        mlflow_setup.register_best_model(run_id)
+
+        model_path=f"{TRAINING_DIR}\\runs\\detect\\runs\\{run_id}\\weights\\best.pt"
+        onnx_path = Path(model_path).with_suffix(".onnx")
+        logger.info("Exporting model to ONNX: %s", onnx_path)
+        model.export(format="onnx", imgsz=args.img_size)
+
+        mlflow_setup.register_model(run_id, model_path, onnx_path)
 
     logger.info("Training complete. Run ID: %s", run_id)
 

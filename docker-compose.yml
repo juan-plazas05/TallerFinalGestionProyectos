@@ -5,7 +5,7 @@ services:
       dockerfile: inference-svc/Dockerfile
     container_name: sign-inference
     ports:
-      - "50051:50051"
+      - '50051:50051'
     environment:
       - GRPC_PORT=50051
       - MLFLOW_TRACKING_URI=http://mlflow:5000
@@ -20,7 +20,7 @@ services:
       dockerfile: ui-svc/Dockerfile
     container_name: sign-ui
     ports:
-      - "8501:8501"
+      - '8501:8501'
     environment:
       - INFERENCE_GRPC_HOST=inference-svc
       - INFERENCE_GRPC_PORT=50051
@@ -34,12 +34,11 @@ services:
     image: ghcr.io/mlflow/mlflow:v2.10.0
     container_name: sign-mlflow
     ports:
-      - "5000:5000"
+      - '5000:5000'
     command: >
       mlflow server
       --host 0.0.0.0
       --port 5000
-      --backend-store-uri /mlflow/artifacts
       --default-artifact-root /mlflow/artifacts
     volumes:
       - mlflow_data:/mlflow

@@ -186,10 +186,10 @@ dataset/
 |-------|------|--------|-------------|-----|
 | Pipeline de entrenamiento | `feature/mlflow-setup` | ✅ | Código de training (train.py, mlflow_setup.py, dataset.yaml) | Entrenamiento invocable con `uv run python train.py` |
 | EDA y balanceo de clases | `feature/eda-data-distribution` | ✅ | Análisis exploratorio de distribución, bounding boxes, integridad; estrategia de balanceo | Reporte narrativo (`report.md`) + visualizaciones guardadas; `train.py` usa `compute_class_weight('balanced')` vía `cls_pw` |
-| Entrenar YOLO11n | — | ⏳ | Entrenamiento con el dataset usando class weights según EDA | mAP > 0.8 en validación |
-| MLflow Tracking | — | ⏳ | Registrar experimento con parámetros, métricas y artefactos | Parámetros y métricas visibles en UI de MLflow |
-| Exportar modelo (.onnx) | — | ⏳ | Exportar el `.pt` entrenado a `.onnx` | Inferencia en ONNX Runtime funcional y validada contra `.pt` original |
-| Model Registry | — | ⏳ | Subir ambos artefactos (`.pt` + `.onnx`) y registrar como "Production" | Modelo disponible para descarga vía API |
+| Entrenar YOLO11n | `feature/train-yolo11n` | ✅ | Entrenamiento con el dataset usando class weights según EDA | mAP > 0.8 en validación |
+| MLflow Tracking | `feature/train-yolo11n` | ✅ | Registrar experimento con parámetros, métricas y artefactos | Parámetros y métricas visibles en UI de MLflow |
+| Exportar modelo (.onnx) | `feature/train-yolo11n` | ✅ | Exportar el `.pt` entrenado a `.onnx` | Inferencia en ONNX Runtime funcional y validada contra `.pt` original |
+| Model Registry | `feature/train-yolo11n` | ✅ | Subir ambos artefactos (`.pt` + `.onnx`) y registrar como "Production" | Modelo disponible para descarga vía API |
 
 ### Sprint 2: Inference Service (gRPC Server)
 | Tarea | Descripción | DoD |
@@ -364,4 +364,4 @@ vc-lenguaje-senas/
 
 *Documento creado: 26/05/2026*
 *Última actualización: 31/05/2026*
-*Progreso: Sprint 0 completado ✅ | Sprint 1: Pipeline entrenamiento ✅ → EDA ✅ → Entrenar YOLO11n 🔄*
+*Progreso: Sprint 0 completado ✅ | Sprint 1 completado ✅ | Sprint 2 pendiente*
