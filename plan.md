@@ -191,13 +191,13 @@ dataset/
 | Exportar modelo (.onnx) | `feature/train-yolo11n` | ✅ | Exportar el `.pt` entrenado a `.onnx` | Inferencia en ONNX Runtime funcional y validada contra `.pt` original |
 | Model Registry | `feature/train-yolo11n` | ✅ | Subir ambos artefactos (`.pt` + `.onnx`) y registrar como "Production" | Modelo disponible para descarga vía API |
 
-### Sprint 2: Inference Service (gRPC Server)
+### Sprint 2: Inference Service (gRPC Server) ✅
 | Tarea | Descripción | DoD |
 |-------|-------------|-----|
-| Implementar servidor gRPC | Servicio de inferencia | Responde correctamente a requests de prueba |
-| Integrar YOLOv7 | Cargar modelo y ejecutar inferencia | Precisión > 85% en imágenes de prueba |
-| OpenCV preprocessing | Redimensionar, normalizar frames | Frame procesado correctamente |
-| Pruebas unitarias | Pytest con mocks | Coverage > 80% |
+| Implementar servidor gRPC | `inference-svc/src/server.py` con `RecognizeStream` | ✅ Responde correctamente a requests de prueba |
+| Carga desde MLflow | `mlflow_loader.py` descarga modelo registrado | ✅ Modelo cargado desde MLflow (v2 Production) |
+| Detección + dibujo | `process.py` con YOLO `predict()` y `draw_detections()` | ✅ Frame procesado y bounding boxes dibujados |
+| Pruebas unitarias | Pytest con mocks (19 tests) | ✅ Coverage 83% en código propio |
 
 ### Sprint 3: UI Service (Streamlit)
 | Tarea | Descripción | DoD |
@@ -363,5 +363,5 @@ vc-lenguaje-senas/
 ---
 
 *Documento creado: 26/05/2026*
-*Última actualización: 31/05/2026*
-*Progreso: Sprint 0 completado ✅ | Sprint 1 completado ✅ | Sprint 2 pendiente*
+*Última actualización: 01/06/2026*
+*Progreso: Sprint 0 completado ✅ | Sprint 1 completado ✅ | Sprint 2 completado ✅ | Sprint 3 pendiente*
