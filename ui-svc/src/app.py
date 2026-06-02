@@ -98,46 +98,37 @@ with tab_det:
 
             with col_result:
                 with st.spinner("Analizando..."):
-                    detections = client.detect(image_bytes, w, h)
+                    result = client.detect(image_bytes, w, h)
 
-                if detections:
-                    for d in detections:
-                        cv2.rectangle(
-                            arr,
-                            (d["x_min"], d["y_min"]),
-                            (d["x_max"], d["y_max"]),
-                            (0, 255, 0), 2,
-                        )
-                        label, conf = d["label"], d["confidence"]
-                        text = f"{label} {conf:.2f}"
-                        (tw, th), _ = cv2.getTextSize(
-                            text, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2
-                        )
-                        cv2.rectangle(
-                            arr,
-                            (d["x_min"], d["y_min"] - th - 6),
-                            (d["x_min"] + tw + 6, d["y_min"]),
-                            (0, 255, 0), -1,
-                        )
-                        cv2.putText(
-                            arr, text,
-                            (d["x_min"] + 3, d["y_min"] - 4),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2,
-                        )
-
-                    st.image(
-                        arr, channels="BGR",
-                        caption=f"{len(detections)} detecciones",
-                        width="stretch",
-                    )
-                    for d in detections:
-                        st.markdown(f"- **{d['label']}** — confianza {d['confidence']:.2%}")
-                else:
+                if result is None:
                     st.error(
-                        "No se obtuvieron detecciones. "
-                        "Verifica que inference-svc esté corriendo "
+                        "No se pudo obtener respuesta de inference-svc. "
+                        "Verifica que el servicio esté corriendo "
                         f"en {GRPC_HOST}:{GRPC_PORT}"
                     )
+                    st.stop()
+
+                annotated = cv2.imdecode(
+                    np.frombuffer(result.annotated_image, np.uint8),
+                    cv2.IMREAD_COLOR,
+                )
+                if annotated is None:
+                    st.warning("La respuesta llegó, pero no se pudo decodificar la imagen anotada.")
+                    annotated = arr
+
+                st.image(
+                    annotated,
+                    channels="BGR",
+                    caption=f"Resultado del inference-svc ({result.inference_time_ms:.1f} ms)",
+                    width="stretch",
+                )
+
+                if not result.detections:
+                    st.info("Inference-svc respondió correctamente, pero no detectó señas con confianza suficiente.")
+                else:
+                    st.success(f"{len(result.detections)} detecciones")
+                    for d in result.detections:
+                        st.markdown(f"- **{d['label']}** — confianza {d['confidence']:.2%}")
 
     with col_right:
         st.subheader("📊 Estadísticas")

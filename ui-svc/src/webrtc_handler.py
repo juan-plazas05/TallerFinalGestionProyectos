@@ -2,6 +2,7 @@ import logging
 
 import cv2
 import numpy as np
+from av import VideoFrame
 
 from grpc_client import GrpcClient
 
@@ -21,21 +22,21 @@ class SignLanguageProcessor:
         image_bytes = encoded.tobytes()
         h, w = img.shape[:2]
 
-        detections = self.client.detect(image_bytes, w, h)
-        if detections is None:
-            return img
+        result = self.client.detect(image_bytes, w, h)
+        if result is None:
+            return VideoFrame.from_ndarray(img, format="bgr24")
 
-        for d in detections:
-            x_min, y_min, x_max, y_max = d["x_min"], d["y_min"], d["x_max"], d["y_max"]
+        annotated = cv2.imdecode(
+            np.frombuffer(result.annotated_image, np.uint8),
+            cv2.IMREAD_COLOR,
+        )
+        if annotated is not None:
+            img = annotated
+
+        for d in result.detections:
             label, conf = d["label"], d["confidence"]
-
-            cv2.rectangle(img, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
-            text = f"{label} {conf:.2f}"
-            (tw, th), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
-            cv2.rectangle(img, (x_min, y_min - th - 6), (x_min + tw + 6, y_min), (0, 255, 0), -1)
-            cv2.putText(img, text, (x_min + 3, y_min - 4), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
 
             self.last_label = label
             self.last_conf = conf
 
-        return img
+        return VideoFrame.from_ndarray(img, format="bgr24")

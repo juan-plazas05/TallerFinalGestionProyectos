@@ -1,4 +1,6 @@
 import logging
+from dataclasses import dataclass
+from typing import Any
 
 import grpc
 
@@ -6,6 +8,14 @@ import vision_pb2
 import vision_pb2_grpc
 
 logger = logging.getLogger("ui-svc.grpc")
+
+
+@dataclass(frozen=True)
+class DetectionResult:
+    detections: list[dict[str, Any]]
+    annotated_image: bytes
+    frame_id: int
+    inference_time_ms: float
 
 
 class GrpcClient:
@@ -33,7 +43,7 @@ class GrpcClient:
         self._channel = None
         self._stub = None
 
-    def detect(self, image_bytes: bytes, width: int, height: int) -> list[dict] | None:
+    def detect(self, image_bytes: bytes, width: int, height: int) -> DetectionResult | None:
         try:
             stub = self._get_stub()
         except Exception as e:
@@ -67,7 +77,12 @@ class GrpcClient:
                     "Frame %d: %d detections in %.1f ms",
                     resp.frame_id, len(dets), resp.inference_time_ms,
                 )
-                return dets
+                return DetectionResult(
+                    detections=dets,
+                    annotated_image=bytes(resp.annotated_image),
+                    frame_id=int(resp.frame_id),
+                    inference_time_ms=float(resp.inference_time_ms),
+                )
         except grpc.RpcError as e:
             logger.warning("gRPC error: %s - %s", e.code(), e.details())
             self._reset()

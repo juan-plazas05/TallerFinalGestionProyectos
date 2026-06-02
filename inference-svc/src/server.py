@@ -17,14 +17,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger("inference-svc")
 
-CONFIDENCE = float(os.getenv("CONFIDENCE_THRESHOLD", "0.5"))
+CONFIDENCE = float(os.getenv("CONFIDENCE_THRESHOLD", "0.25"))
 IOU = float(os.getenv("IOU_THRESHOLD", "0.45"))
-
-try:
-    model = mlflow_loader.load_model()
-except Exception:
-    logger.exception("Fatal: no se pudo cargar el modelo")
-    model = None
 
 class SignLanguageRecognizerServicer(vision_pb2_grpc.SignLanguageRecognizerServicer):
     def __init__(self, model):
@@ -50,10 +44,11 @@ class SignLanguageRecognizerServicer(vision_pb2_grpc.SignLanguageRecognizerServi
                     request.image_data, request.width, request.height, detections
                 )
 
-            except Exception:
+            except Exception as exc:
                 logger.exception("Error processing frame %d", request.frame_id)
-                detections = []
-                annotated = request.image_data
+                context.set_code(grpc.StatusCode.INTERNAL)
+                context.set_details(f"Error processing frame {request.frame_id}: {exc}")
+                return
 
             inference_ms = (time.perf_counter() - t0) * 1000
 
@@ -89,6 +84,7 @@ class SignLanguageRecognizerServicer(vision_pb2_grpc.SignLanguageRecognizerServi
 
 def serve() -> None:
     port = int(os.getenv("GRPC_PORT", "50051"))
+    model = mlflow_loader.load_model()
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
     vision_pb2_grpc.add_SignLanguageRecognizerServicer_to_server(

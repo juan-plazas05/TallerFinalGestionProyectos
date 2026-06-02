@@ -12,6 +12,14 @@ logger = logging.getLogger("inference-svc.mlflow_loader")
 MODEL_DIR = Path(tempfile.gettempdir()) / "sign-language-models"
 
 
+def _load_local_model(path: str | os.PathLike[str]) -> YOLO:
+    model_path = Path(path)
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model file not found at {model_path}")
+    logger.info("Loading local model: %s", model_path)
+    return YOLO(str(model_path), task="detect")
+
+
 def _get_client() -> mlflow.tracking.MlflowClient:
     uri = os.getenv("MLFLOW_TRACKING_URI", "sqlite:///" + str(
         Path(__file__).resolve().parent.parent.parent / "training" / "mlflow.db"
@@ -21,6 +29,16 @@ def _get_client() -> mlflow.tracking.MlflowClient:
 
 
 def load_model(stage: str | None = None) -> YOLO:
+    local_path = os.getenv("MODEL_LOCAL_PATH")
+    if local_path:
+        model_path = Path(local_path)
+        if model_path.exists():
+            return _load_local_model(model_path)
+        logger.warning(
+            "MODEL_LOCAL_PATH is set but file does not exist: %s. Falling back to MLflow.",
+            model_path,
+        )
+
     model_name = os.getenv("MLFLOW_MODEL_NAME", "sign-language-detector")
     stage = stage or os.getenv("MODEL_STAGE", "Production")
 

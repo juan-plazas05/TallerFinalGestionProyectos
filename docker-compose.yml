@@ -8,8 +8,12 @@ services:
       - '50051:50051'
     environment:
       - GRPC_PORT=50051
+      - MODEL_LOCAL_PATH=/models/best.onnx
       - MLFLOW_TRACKING_URI=http://mlflow:5000
       - MODEL_STAGE=Production
+      - CONFIDENCE_THRESHOLD=0.25
+    volumes:
+      - ./models:/models:ro
     networks:
       - sign-net
     restart: unless-stopped
@@ -34,7 +38,7 @@ services:
     image: ghcr.io/mlflow/mlflow:v2.10.0
     container_name: sign-mlflow
     ports:
-      - '5000:5000'
+      - '${MLFLOW_HOST_PORT:-5050}:5000'
     command: >
       mlflow server
       --host 0.0.0.0
