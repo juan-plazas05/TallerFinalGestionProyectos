@@ -31,8 +31,9 @@ class SignLanguageRecognizerServicer(vision_pb2_grpc.SignLanguageRecognizerServi
         self.model = model
 
     def RecognizeStream(self, request_iterator, context):
-        logger.info("Client connected")
+        logger.info(f"Client connected: {request_iterator}")
         for request in request_iterator:
+            logger.info(f"Processing frame %d", request.frame_id)
             t0 = time.perf_counter()
 
             try:
@@ -81,6 +82,7 @@ class SignLanguageRecognizerServicer(vision_pb2_grpc.SignLanguageRecognizerServi
                 len(detections),
                 inference_ms,
             )
+
 
         logger.info("Client disconnected")
 

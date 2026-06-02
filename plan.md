@@ -197,17 +197,23 @@ dataset/
 | Implementar servidor gRPC | `inference-svc/src/server.py` con `RecognizeStream` | ✅ Responde correctamente a requests de prueba |
 | Carga desde MLflow | `mlflow_loader.py` descarga modelo registrado | ✅ Modelo cargado desde MLflow (v2 Production) |
 | Detección + dibujo | `process.py` con YOLO `predict()` y `draw_detections()` | ✅ Frame procesado y bounding boxes dibujados |
-| Pruebas unitarias | Pytest con mocks (19 tests) | ✅ Coverage 83% en código propio |
+| MLflow loader + process + server | `mlflow_loader.py`, `process.py`, `server.py` | ✅ Servicio gRPC funcional en puerto 50051 |
 
 ### Sprint 3: UI Service (Streamlit)
-| Tarea | Descripción | DoD |
-|-------|-------------|-----|
-| Interfaz de cámara | WebRTC integrado | Video en tiempo real visible en navegador |
-| gRPC Client | Conectar con Inference Service | Frames enviados y predicciones recibidas |
-| Overlay de resultados | Dibujar bounding boxes | Letra detectada visible en el video |
-| Pruebas de integración | Flujo completo | Cámara → gRPC → Predicción → Display |
+| Tarea | Archivo | Descripción | DoD |
+|-------|---------|-------------|-----|
+| gRPC Client | `ui-svc/src/grpc_client.py` | Cliente gRPC para `RecognizeStream`, manejo de errores y reconexión | Se conecta y recibe detecciones del inference-svc |
+| WebRTC Handler | `ui-svc/src/webrtc_handler.py` | `VideoTransformer` que captura frame → envía a gRPC → recibe anotaciones | Video anotado en tiempo real visible en navegador |
+| App principal | `ui-svc/src/app.py` | Integra WebRTC + gRPC, panel informativo (FPS, detecciones) | La app inicia con `streamlit run` y procesa video |
 
-### Sprint 4: Dockerización y Despliegue
+### Sprint 4: Pruebas Unitarias
+| Tarea | Archivo | DoD |
+|-------|---------|-----|
+| Tests inference-svc | `inference-svc/tests/` (process, mlflow_loader, server) | Coverage > 80% |
+| Tests ui-svc | `ui-svc/tests/` (grpc_client, webrtc_handler) | Coverage > 80% |
+| Tests de integración | Flujo completo gRPC | Cámara simulada → detección → display |
+
+### Sprint 5: Dockerización y Despliegue
 | Tarea | Descripción | DoD |
 |-------|-------------|-----|
 | Docker multistage | Imagen optimizada | Imagen < 2GB |
@@ -364,4 +370,4 @@ vc-lenguaje-senas/
 
 *Documento creado: 26/05/2026*
 *Última actualización: 01/06/2026*
-*Progreso: Sprint 0 completado ✅ | Sprint 1 completado ✅ | Sprint 2 completado ✅ | Sprint 3 pendiente*
+*Progreso: Sprint 0 ✅ | Sprint 1 ✅ | Sprint 2 ✅ | Sprint 3 pendiente | Sprint 4 pendiente | Sprint 5 pendiente*
